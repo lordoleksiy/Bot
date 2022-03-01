@@ -1,4 +1,13 @@
 const { Telegraf, Context } = require('telegraf')
+const sqlite3 = require('sqlite3').verbose();
+
+
+const db = new sqlite3.Database("./data.db", (err) => {
+  if (err)
+    console.log('Could not connect to database', err)
+  else
+    console.log('Connected to database')
+  })
 
 const bot = new Telegraf("5290656003:AAHs-MnL_wUOwDh18i-xgfxUx-JdPxSZ30c")
 bot.start( async ctx=>{
@@ -16,9 +25,8 @@ bot.command('cum_in', ctx=>{
    ctx.reply(`${ctx.message.from.first_name}, мы не рады видеть тебя в свой секте "Свидетели Разлива Пива", но хуй с тобой - присоединяйся`)
 })
 
-// bot.on('message', (ctx)=> {
-//   console.log(ctx.message)
-//   bot.telegram.sendMessage(ctx.message.chat.id, "It's so inetersing...")
-// });
+bot.on('message', (ctx)=> {
+  console.log(ctx.message.from)
+});
 
 bot.launch()
