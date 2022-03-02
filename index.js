@@ -14,7 +14,7 @@ let testObj = {
 }
 let testDate
 
-const bot = new Telegraf("5245083579:AAE1zVoOVn3g16LNczlx4SE7Nv1KBMWQqiQ")
+const bot = new Telegraf("5290656003:AAHs-MnL_wUOwDh18i-xgfxUx-JdPxSZ30c")
 bot.start( async ctx=>{
   if (await ctx.getChatMembersCount(ctx.chat.id) > 2) {
     ctx.reply(`Здравствуйте, мои дети! Мы приветствуем вас в секте "Свидетели Разлива Пива"`)
