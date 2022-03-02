@@ -19,10 +19,31 @@ function delData(id){
 }
 
 function getData(id){
-    const res = await db.get("SELECT * FROM alcodata where id == (?)", [id], function(err, row){
-    return row
+    const res = db.get("SELECT * FROM alcodata where id == (?)", [id], function(err, row){
+    
     })
 }
+
+function setData(id, count, alco, date, score, task=undefined){
+    if (task != undefined)
+        db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ?, task = ? WHERE id = ?", [count, alco, date, score, task, id])
+    else
+        db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ? WHERE id = ?", [count, alco, date, score, id])
+}
+
+const writeData = function( id ){
+    return new Promise( async (resolve, reject)=> {
+        const res = db.get("SELECT * FROM alcodata where id == (?)", [id], function(err, row){
+            if( !err ){
+                resolve( row ) 
+            }else{
+                resolve(false) 
+            }
+        })
+    })
+}
+ 
+
 
 
 // db.run("CREATE TABLE alcodata(id integer not null, count integer not null, alco text not null, date text, score integer, task text)")
@@ -32,3 +53,5 @@ function getData(id){
 module.exports.insertData = insertData
 module.exports.delData = delData
 module.exports.getData = getData
+module.exports.setData = setData
+module.exports.writeData = writeData
