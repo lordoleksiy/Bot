@@ -7,7 +7,7 @@ let testObj = {
   number: 0
 }
 
-const { Telegraf, Context } = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf("5245083579:AAE1zVoOVn3g16LNczlx4SE7Nv1KBMWQqiQ")
 bot.start( async ctx=>{
