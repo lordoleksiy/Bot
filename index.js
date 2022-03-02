@@ -1,15 +1,10 @@
-const { insertData } = require('./database')
-const { delData } = require('./database')
-const { getData } = require('./database')
-const { setData } = require('./database')
-const { writeData } = require('./database')
+const { delData, setData, getById, insertData } = require('./database')
 const { Database } = require('sqlite3')
 const { Telegraf, Context } = require('telegraf')
+const { delay } = require('bluebird')
 
 
 const bot = new Telegraf("5290656003:AAHs-MnL_wUOwDh18i-xgfxUx-JdPxSZ30c")
-const res = writeData(1)
-setData(1, 20, null, "21.09.2020", null)
 bot.start( async ctx=>{
   if (await ctx.getChatMembersCount(ctx.chat.id) > 2) {
     ctx.reply(`Здравствуйте, мои дети! Мы приветствуем вас в секте "Свидетели Разлива Пива"`)
@@ -30,7 +25,11 @@ bot.command('cumin', ctx=>{
 })
 
 bot.on('message', ()=>{
-  console.log(res)
+  const value = getById(1)
+  value.then(()=> {
+    const personData = value._rejectionHandler0
+
+  })
 })
 
 bot.launch()

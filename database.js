@@ -1,4 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
+const Promise = require('bluebird')
+
 const db = new sqlite3.Database("./data.db", err=>{
     if (err) console.log("Ебать, ложись! Ошибка вылетела, щас бомбить начнут. " + err.message)
     else console.log("Мы подключились к этой сучке!")
@@ -18,12 +20,6 @@ function delData(id){
     })
 }
 
-function getData(id){
-    const res = db.get("SELECT * FROM alcodata where id == (?)", [id], function(err, row){
-    
-    })
-}
-
 function setData(id, count, alco, date, score, task=undefined){
     if (task != undefined)
         db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ?, task = ? WHERE id = ?", [count, alco, date, score, task, id])
@@ -31,17 +27,17 @@ function setData(id, count, alco, date, score, task=undefined){
         db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ? WHERE id = ?", [count, alco, date, score, id])
 }
 
-const writeData = function( id ){
-    return new Promise( async (resolve, reject)=> {
-        const res = db.get("SELECT * FROM alcodata where id == (?)", [id], function(err, row){
-            if( !err ){
-                resolve( row ) 
-            }else{
-                resolve(false) 
-            }
-        })
+function getById(id) {
+    return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM alcodata where id == (?)", [id], (err, result) => {
+        if (err) {
+        console.log('Error running sql: ' + err.message)
+        reject(err)
+        } else resolve(result)
+    })
     })
 }
+
  
 
 
@@ -54,4 +50,4 @@ module.exports.insertData = insertData
 module.exports.delData = delData
 module.exports.getData = getData
 module.exports.setData = setData
-module.exports.writeData = writeData
+module.exports.getById = getById
