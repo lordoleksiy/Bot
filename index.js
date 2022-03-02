@@ -6,6 +6,7 @@ let testObj = {
   gradus: 0,
   number: 0
 }
+let testDate
 
 const { Telegraf } = require('telegraf')
 
@@ -28,11 +29,14 @@ bot.command('cumin', ctx=>{
 bot.command('alcobot', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', 
-  {
+  mainObj = {
     reply_markup: {
       inline_keyboard: [
-        [{text: "Заархивировать выпитый мной алкоголь", callback_data: "writeAlcoStep1"}],
-        [{text: "test button 2", url: "google.com"}]
+        [{text: "Выпивка", callback_data: "writeAlcoStep1"}],
+        [{text: "Заархивировать выпитый мной алкоголь", callback_data: "writeAlcoStep1"}, 
+        {text: "Что я уже выпил?", callback_data: "readAlco"}],
+        [{text: "Сколько дней я не пил?", callback_data: "date"}],
+        [{text: "Помощь", callback_data: "help"}, {text: "Закрыть", callback_data: "close"}]
       ]
     }
   })
@@ -107,15 +111,7 @@ bot.action(/writeAlcoStep2./, ctx=>{
 
 bot.action('goBack', ctx=>{
   ctx.deleteMessage()
-  ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', 
-  {
-    reply_markup: {
-      inline_keyboard: [
-        [{text: "Заархивировать выпитый мной алкоголь", callback_data: "writeAlcoStep1"}],
-        [{text: "test button 2", url: "google.com"}]
-      ]
-    }
-  })
+  ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', mainObj)
 })
 
 bot.on('message', ctx=>{
@@ -156,9 +152,50 @@ bot.on('message', ctx=>{
 
 bot.action('writeAlcoStep3', ctx=>{
   ctx.deleteMessage()
-  console.log(testObj)
+  testDate = new Date()
+  console.log(testDate)
   // Тут будет прописана логика записи объекта в базу данных
 })
+
+bot.action('readAlco', ctx=>{
+  ctx.deleteMessage()
+  // Сюды надо прописать нормальный вывод из бд
+  ctx.telegram.sendMessage(ctx.chat.id, testObj, 
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [{text: "Вернуться назад", callback_data: "goBack"}]
+        ]
+      }
+    })
+})
+
+bot.action('help', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Бог поможет',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Вернуться назад", callback_data: "goBack"}]
+      ]
+    }
+  })
+})
+
+bot.action('date', ctx=>{
+  ctx.deleteMessage()
+  // Надо продумать, не гребу, как эту херню представить адекватно в днях
+  ctx.telegram.sendMessage(ctx.chat.id, `Ты не пил ${Math.floor((new Date() - testDate)/1000)} секунд`,
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Вернуться назад", callback_data: "goBack"}]
+      ]
+    }
+  })
+})
+
+bot.action('close', ctx=>ctx.deleteMessage())
 
 // bot.on('message', (ctx)=> {
 //   console.log(ctx.message)
