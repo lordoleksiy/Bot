@@ -48,6 +48,5 @@ function getById(id) {
 
 module.exports.insertData = insertData
 module.exports.delData = delData
-module.exports.getData = getData
 module.exports.setData = setData
 module.exports.getById = getById
