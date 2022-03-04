@@ -54,11 +54,31 @@ function getById(id) {
     })
 }
 
+
 // db.run("CREATE TABLE alcodata(id integer not null, count integer not null, alco text not null, date text, score integer, task text, username text)")
 // db.run("DELETE TABLE alcodata")
+
+//                                  Вторая база данных:
+db.run("CREATE TABLE tempData(id integer not null, alco text not null, gradus integer, count integer, stage integer)")
+
+function updateData(id, alco=null, gradus=null, count=null){
+    if (!gradus && !count){
+        db.run('INSERT INTO tempData(id, alco, stage) VALUES (?, ?, 1)', [id, alco], err => {
+            if (err) console.log("У тебя член маленький. " + err.message)
+            else console.log("Вставил ты ей хорошеично. ")
+        })  
+    }
+    else if (!count){
+        db.run('INSERT INTO tempData(id, gradus, stage) VALUES (?, ?, 2)', [id, gradus], err => {
+            if (err) console.log("У тебя член маленький. " + err.message)
+            else console.log("Вставил ты ей хорошеично. ")
+        })
+    }
+}
 
 
 module.exports.insertData = insertData
 module.exports.delData = delData
 module.exports.setData = setData
 module.exports.getById = getById
+module.exports.updateData = Data

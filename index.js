@@ -1,12 +1,7 @@
-const { delData, setData, getById, insertData } = require('./database')
+const { delData, setData, getById, insertData, updateData } = require('./database')
 const { Database } = require('sqlite3')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
-
-
-let isWaiting1 = false
-let isWaiting2 = false
-let testDate
 
 const bot = new Telegraf("5290656003:AAHs-MnL_wUOwDh18i-xgfxUx-JdPxSZ30c")
 bot.start( async ctx=>{
@@ -28,21 +23,37 @@ bot.command('cumin', ctx=>{
   insertData(ctx.message.from.id, ctx.message.from.username)
 })
 
-bot.on('message', (ctx)=>{
-  console.log(ctx.message.from.username, ctx.message.from.username)
+
+bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко
+  ctx.reply('Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они: ')
+  ctx.reply(`1. пиво/сидр,
+2. шейк/ром-кола/рево/подобное, 
+3. водка,
+4. ром,
+5. егерь/крепкий ликер/джин/аристократическая хуйня, 
+6. вино,
+7. портвейн,
+8. ликеры`)
+  stage = 1
 })
 
-
-bot.command('alco', ()=>{  // команда, чтоб записать количество выпитого алко
-  bot.reply('Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они: ')
-  bot.reply(``)
-})
 
 bot.command('delete', (ctx)=>{
   delData(ctx.message.from.id)
 })
 
 
-
+bot.on('message', ctx=>{
+  let stage = 0
+  switch (stage){
+    case 1:
+      updateData(ctx.message.from.id, ctx.message.text)
+      ctx.reply("Ок, какой выдержки было твое пойло? (в градусах)")
+      stage++
+      break
+    case 2:
+      
+  }
+})
 
 bot.launch()
