@@ -28,9 +28,15 @@ bot.command('cumin', ctx=>{
   insertData(ctx.message.from.id, ctx.message.from.username)
 })
 
-// bot.on('message', (ctx)=>{
-//   console.log(ctx.message.from.username, ctx.message.from.username)
-// })
+bot.on('message', (ctx)=>{
+  console.log(ctx.message.from.username, ctx.message.from.username)
+})
+
+
+bot.command('alco', ()=>{  // команда, чтоб записать количество выпитого алко
+  bot.reply('Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они: ')
+  bot.reply(``)
+})
 
 bot.command('delete', (ctx)=>{
   delData(ctx.message.from.id)
