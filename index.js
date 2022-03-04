@@ -26,22 +26,74 @@ bot.command('cumin', ctx=>{
    ctx.reply(`${ctx.message.from.first_name}, мы не рады видеть тебя в свой секте "Свидетели Разлива Пива", но хуй с тобой - присоединяйся`)
 })
 
+// Основое меню
 bot.command('alcobot', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', 
   mainObj = {
     reply_markup: {
       inline_keyboard: [
-        [{text: "Выпивка", callback_data: "writeAlcoStep1"}],
-        [{text: "Заархивировать выпитый мной алкоголь", callback_data: "writeAlcoStep1"}, 
-        {text: "Что я уже выпил?", callback_data: "readAlco"}],
-        [{text: "Сколько дней я не пил?", callback_data: "date"}],
+        [{text: "Выпивка", callback_data: "alco"}],
+        [{text: "Древо нашей секты", callback_data: "tree"}],
+        [{text: "Моя миссия", callback_data: "task"}],
         [{text: "Помощь", callback_data: "help"}, {text: "Закрыть", callback_data: "close"}]
       ]
     }
   })
 })
 
+// Меню выпивки
+bot.action('alco', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Дети мои, это вкладка наполнит ваши умы смыслом',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Записать откровение", callback_data: "writeAlcoStep1"}],
+        [{text: "Заглянуть в прошлое", callback_data: "readAlco"},
+        {text: "Дней без боя", callback_data: "date"}],        
+        [{text: "Заглянуть в прошлое сочлена", callback_data: "readAlcoOf"}],
+        [{text: "Дней без боя сочлена", callback_data: "dateOf"}],
+        [{text: "Вернуться назад", callback_data: "goBack"}]
+      ]
+    }
+  })
+})
+
+// Меню Древо нашей секты 
+bot.action('tree', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Дитя моё, вот и ',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Узнать свой сан", callback_data: "rank"}],
+        [{text: "Устрой секты", callback_data: "system"},
+        {text: "Узреть лучших", callback_data: "best"}],
+        [{text: "Вернуться назад", callback_data: "goBack"}]
+      ]
+    }
+  })
+})
+
+// Меню Моя миссия
+bot.action('task', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Бог поможет',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Взяться за поручение", callback_data: "getTask"},
+        {text: "Пропустить поручение", callback_data: "skipTask"}],
+        [{text: "Моя миссия", callback_data: "myTask"},
+        {text: "Предложить поручение", callback_data: "offerTask"}],
+        [{text: "Вернуться назад", callback_data: "goBack"}]
+      ]
+    }
+  })
+})
+
+// Запись выпивки. Выбор типа алко по кнопкам
 bot.action('writeAlcoStep1', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 
@@ -69,6 +121,7 @@ bot.action('writeAlcoStep1', ctx=>{
   })
 })
 
+// Запись выпивки. Запись типа алко. Запрос на количество, который обрабатывается в bot.on(message)
 bot.action(/writeAlcoStep2./, ctx=>{
   ctx.deleteMessage()
   console.log()
@@ -109,11 +162,13 @@ bot.action(/writeAlcoStep2./, ctx=>{
   isWaiting1 = true;
 })
 
+// Вернуться на главное меню
 bot.action('goBack', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', mainObj)
 })
 
+// Считывание количества и градуса алко
 bot.on('message', ctx=>{
   if (isWaiting1) {
     testObj.gradus = ctx.message.text
@@ -150,6 +205,7 @@ bot.on('message', ctx=>{
   }
 })
 
+// Запись даты последнего раза
 bot.action('writeAlcoStep3', ctx=>{
   ctx.deleteMessage()
   testDate = new Date()
@@ -157,6 +213,7 @@ bot.action('writeAlcoStep3', ctx=>{
   // Тут будет прописана логика записи объекта в базу данных
 })
 
+// Вывести список и количество алко в 
 bot.action('readAlco', ctx=>{
   ctx.deleteMessage()
   // Сюды надо прописать нормальный вывод из бд
@@ -170,6 +227,7 @@ bot.action('readAlco', ctx=>{
     })
 })
 
+// Помощь.
 bot.action('help', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 'Бог поможет',
@@ -182,6 +240,7 @@ bot.action('help', ctx=>{
   })
 })
 
+// Вывод "сколько дней не пил"
 bot.action('date', ctx=>{
   ctx.deleteMessage()
   // Надо продумать, не гребу, как эту херню представить адекватно в днях
@@ -195,6 +254,7 @@ bot.action('date', ctx=>{
   })
 })
 
+// Закрыть менюшку
 bot.action('close', ctx=>ctx.deleteMessage())
 
 // bot.on('message', (ctx)=> {
