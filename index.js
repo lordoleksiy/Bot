@@ -171,26 +171,35 @@ bot.action('goBack', ctx=>{
 // Считывание количества и градуса алко
 bot.on('message', ctx=>{
   if (isWaiting1) {
-    testObj.gradus = ctx.message.text
-    ctx.deleteMessage(ctx.message.message_id - 1)
-    ctx.deleteMessage(ctx.message.message_id)
+    if (parseInt(ctx.message.text) <= 100 && parseInt(ctx.message.text) > 0) {
+      testObj.gradus = ctx.message.text // Сюды запись в базу
+      ctx.deleteMessage(ctx.message.message_id)
+    } else {
+      ctx.deleteMessage(ctx.message.message_id - 1)   
+      ctx.deleteMessage(ctx.message.message_id)
+      ctx.reply('Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся')
+      return
+    }
+    ctx.deleteMessage(ctx.message.message_id - 1)    
 
-    ctx.telegram.sendMessage(ctx.chat.id, 'А сколько выпил то?', 
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [{text: "Вернуться назад", callback_data: "writeAlcoStep1"}]
-        ]
-      }
-    })
+    ctx.telegram.sendMessage(ctx.chat.id, 'А сколько выпил то, если честно? В миллилитрах только укажи для справки', 
+    { reply_markup: { inline_keyboard: [[{text: "Вернуться назад", callback_data: "writeAlcoStep1"}]] } })
 
     isWaiting1 = false
     isWaiting2 = true
   } else if (isWaiting2) {
-    testObj.number = ctx.message.text
+    if (parseInt(ctx.message.text) > 0 && parseInt(ctx.message.text) < 10000) {
+      testObj.number = ctx.message.text // Сюды запись в базу
+      ctx.deleteMessage(ctx.message.message_id)
+    } else {
+      ctx.deleteMessage(ctx.message.message_id - 1)   
+      ctx.deleteMessage(ctx.message.message_id)
+      ctx.reply('Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся')
+      return
+    }
     ctx.deleteMessage(ctx.message.message_id - 1)
-    ctx.deleteMessage(ctx.message.message_id)
-
+    
+    // А сюды чтение из базы
     ctx.telegram.sendMessage(ctx.chat.id, 
       `Окей, подитожим. Ты выпил ${testObj.number} миллилитров ${testObj.gradus}-градусного ${testObj.type}`,
       {
