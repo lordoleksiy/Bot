@@ -115,7 +115,7 @@ bot.action('writeAlcoStep1', ctx=>{
         {text: "3", callback_data: "writeAlcoStep23"}, {text: "4", callback_data: "writeAlcoStep24"},
         {text: "5", callback_data: "writeAlcoStep25"}, {text: "6", callback_data: "writeAlcoStep26"},
         {text: "7", callback_data: "writeAlcoStep27"}, {text: "8", callback_data: "writeAlcoStep28"}],
-        [{text: "Вернуться назад", callback_data: "goBack"}]
+        [{text: "Вернуться назад", callback_data: "alco"}]
       ]
     }
   })
@@ -230,7 +230,7 @@ bot.action('readAlco', ctx=>{
     {
       reply_markup: {
         inline_keyboard: [
-          [{text: "Вернуться назад", callback_data: "goBack"}]
+          [{text: "Вернуться назад", callback_data: "alco"}]
         ]
       }
     })
@@ -257,7 +257,7 @@ bot.action('date', ctx=>{
   {
     reply_markup: {
       inline_keyboard: [
-        [{text: "Вернуться назад", callback_data: "goBack"}]
+        [{text: "Вернуться назад", callback_data: "alco"}]
       ]
     }
   })
