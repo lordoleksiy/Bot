@@ -98,7 +98,14 @@ function updateData3(id, gradus, date){
     })
 }
 function updateData4(id, count, date){
-    db.run('UPDATE tempData SET count = ?, stage = 2 WHERE (id = ?) AND (date = ?)', [count, id, date], err => {
+    db.run('UPDATE tempData SET count = ?, stage = 3 WHERE (id = ?) AND (date = ?)', [count, id, date], err => {
+        if (err) console.log("У тебя член маленький. " + err.message)
+        else console.log("Вставил ты ей хорошеично. ")
+    })
+}
+
+function delById(id, date){
+    db.run('DELETE FROM tempData WHERE (id = ?) AND (date = ?)', [id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
         else console.log("Вставил ты ей хорошеично. ")
     })
@@ -112,3 +119,4 @@ module.exports.updateData1 = updateData1
 module.exports.updateData2 = updateData2
 module.exports.updateData3 = updateData3
 module.exports.updateData4 = updateData4
+module.exports.delById = delById

@@ -1,4 +1,4 @@
-const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4 } = require('./database')
+const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4, delById } = require('./database')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
 
@@ -35,14 +35,24 @@ bot.command('cumin', ctx=>{
 
 bot.command('delete', ctx=>{
   delData(ctx.message.from.id)
+  delData(ctx.message.from.id, "tempData")
   ctx.reply("Жаль, что ты оказался слишком слабым...")
 })
 
 bot.command('myalco', ctx=>{  // команда, чтоб 
-  let data = getById(ctx.message.from.chat.id)
+  let data = getById(ctx.message.from.id)
   data.then(()=>{
     data = data._rejectionHandler0
-
+    let alco = JSON.parse(data.alco)
+    let text = 'Вот твой почетный список:\n'
+    for (k in alco){
+      if (alco[k] != 0)
+        text += `${k} : ${alco[k]} л; \n`
+    }
+    if (text)
+      ctx.reply(text)
+    else
+      ctx.reply("Дитя мое, тебе еще только предстоит познать этот мир...")
   })
 })
 
@@ -66,8 +76,12 @@ bot.on('message', ctx=>{
     value = value._rejectionHandler0
     switch (value.stage){  // этап
       case 0:
-        updateData2(ctx.message.from.id, alcoObj[ctx.message.text], value.date)
-        ctx.reply("Какой выдержки было твое пойло? Напиши значение в градусах.")
+        if (ctx.message.text in alcoObj){
+          updateData2(ctx.message.from.id, alcoObj[ctx.message.text], value.date)
+          tx.reply("Какой выдержки было твое пойло? Напиши значение в градусах.")
+        }
+        else
+          delById(ctx.message.from.id, value.date)
         break
 
       case 1:
@@ -81,7 +95,7 @@ bot.on('message', ctx=>{
         data = data._rejectionHandler0
         let alco = JSON.parse(data.alco)
 
-        alco[value.alco] += parseInt(ctx.message.text)
+        alco[value.alco] += parseInt(ctx.message.text)/1000
         let etanol = data.count+parseInt(ctx.message.text)*value.gradus/100
 
         setData(ctx.message.from.id, etanol, JSON.stringify(alco), value.date, 0, null)
