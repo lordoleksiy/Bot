@@ -1,5 +1,4 @@
 const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4 } = require('./database')
-const { Database } = require('sqlite3')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
 
@@ -34,6 +33,18 @@ bot.command('cumin', ctx=>{
   insertData(ctx.message.from.id, ctx.message.from.username)
 })
 
+bot.command('delete', ctx=>{
+  delData(ctx.message.from.id)
+  ctx.reply("Жаль, что ты оказался слишком слабым...")
+})
+
+bot.command('myalco', ctx=>{  // команда, чтоб 
+  let data = getById(ctx.message.from.chat.id)
+  data.then(()=>{
+    data = data._rejectionHandler0
+
+  })
+})
 
 bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко
   ctx.reply('Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они: ')
@@ -48,35 +59,32 @@ bot.command('alco', ctx=>{  // команда, чтоб записать кол�
   updateData1(ctx.message.from.id, new Date())
 })
 
-
-bot.command('delete', (ctx)=>{
-  delData(ctx.message.from.id)
-})
-
-
 bot.on('message', ctx=>{
   let data = getById(ctx.message.from.id)  // данные с таблицы alcoData
   let value = getById(ctx.message.from.id, "tempData", "date")  // данные с таблицы tempData
   value.then(()=> {
     value = value._rejectionHandler0
-    console.log(value)
     switch (value.stage){  // этап
       case 0:
         updateData2(ctx.message.from.id, alcoObj[ctx.message.text], value.date)
-        ctx.reply("Ок, какой выдержки было твое пойло? (в градусах)")
+        ctx.reply("Какой выдержки было твое пойло? Напиши значение в градусах.")
         break
 
       case 1:
         updateData3(ctx.message.from.id, ctx.message.text, value.date)
-        ctx.reply("Скок выпил?")
+        ctx.reply("Каким объемом выпитого ты нас порадуешь? Укажи значение в милилитрах.")
         break
 
       case 2:
         updateData4(ctx.message.from.id, ctx.message.text, value.date)
+        ctx.reply("Дитя мое, ты не перестаешь меня радовать")
         data = data._rejectionHandler0
         let alco = JSON.parse(data.alco)
+
         alco[value.alco] += parseInt(ctx.message.text)
-        setData(ctx.message.from.id, data.count+parseInt(ctx.message.text)*value.gradus/100, JSON.stringify(alco), null, 0, null)
+        let etanol = data.count+parseInt(ctx.message.text)*value.gradus/100
+
+        setData(ctx.message.from.id, etanol, JSON.stringify(alco), value.date, 0, null)
     }
   })
 })

@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const Promise = require('bluebird')
 
+// пример объекта
 let alcoObj = {
     'пиво/сидр': 0,
     'шейк/ром-кола/рево/подобное':0, 
@@ -17,6 +18,7 @@ const db = new sqlite3.Database("./data.db", err=>{
     else console.log("Мы подключились к этой сучке!")
 })
 
+// зарегистрировать пользователя, при вызове можно указывать только id
 function insertData(id, username=null, count=0, alco=JSON.stringify(alcoObj), date=null, score=0, task=null){
     const value = getById(id)
     value.then(()=> {
@@ -29,6 +31,7 @@ function insertData(id, username=null, count=0, alco=JSON.stringify(alcoObj), da
     })
 }
 
+// удалить пользователя
 function delData(id, base='alcodata'){
     db.run(`DELETE FROM ${base} where id == (?)`, [id], err=>{
         if (err) console.log("Шеф, вы проебались конкретно " + err.message)
@@ -36,6 +39,7 @@ function delData(id, base='alcodata'){
     })
 }
 
+// изменить данные у пользователя по id
 function setData(id, count, alco, date, score, task=undefined){  // если у человка поменяется юзернейм то надо обновить данные
     if (task != undefined)
         db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ?, task = ? WHERE id = ?", [count, alco, date, score, task, id])
@@ -43,6 +47,7 @@ function setData(id, count, alco, date, score, task=undefined){  // если у 
         db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ? WHERE id = ?", [count, alco, date, score, id])
 }
 
+// получить данные пользователя по id
 function getById(id, base="alcodata", order=null) {
     if (order){
         return new Promise((resolve, reject) => {
@@ -73,6 +78,7 @@ function getById(id, base="alcodata", order=null) {
 //                                  Вторая база данных:
 // db.run("CREATE TABLE tempData(id integer not null, alco text, gradus integer, count integer, stage integer)")
 
+// создать запись пользователя в tempData
 function updateData1(id, date){
     db.run('INSERT INTO tempData(id, stage, date) VALUES (?, 0, ?)', [id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
