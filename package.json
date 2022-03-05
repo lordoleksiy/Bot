@@ -7,12 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Kovtun Oleksiy and Yaroslav Bugaev",
+  "author": "Kovtun Oleksiy and Yaroslav Bugayov",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.7.2",
     "dotenv": "^16.0.0",
     "jimp": "^0.16.1",
     "pexels": "^1.3.0",
+    "sqlite3": "^5.0.2",
     "telegraf": "^4.7.0",
     "uuid": "^8.3.2"
   },
