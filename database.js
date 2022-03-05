@@ -43,15 +43,27 @@ function setData(id, count, alco, date, score, task=undefined){  // если у 
         db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ? WHERE id = ?", [count, alco, date, score, id])
 }
 
-function getById(id, base="alcodata") {
-    return new Promise((resolve, reject) => {
-    db.get(`SELECT * FROM ${base} where id == (?)`, [id], (err, result) => {
-        if (err) {
-        console.log('Error running sql: ' + err.message)
-        reject(err)
-        } else resolve(result)
-    })
-    })
+function getById(id, base="alcodata", order=null) {
+    if (order){
+        return new Promise((resolve, reject) => {
+            db.get(`SELECT * FROM ${base} where id == (?) ORDER BY ${order} DESC`, [id], (err, result) => {
+                if (err) {
+                console.log('Error running sql: ' + err.message)
+                reject(err)
+                } else resolve(result)
+            })
+            })
+    }
+    else{
+        return new Promise((resolve, reject) => {
+        db.get(`SELECT * FROM ${base} where id == (?)`, [id], (err, result) => {
+            if (err) {
+            console.log('Error running sql: ' + err.message)
+            reject(err)
+            } else resolve(result)
+        })
+        })
+    }
 }
 
 
@@ -61,26 +73,26 @@ function getById(id, base="alcodata") {
 //                                  Вторая база данных:
 // db.run("CREATE TABLE tempData(id integer not null, alco text, gradus integer, count integer, stage integer)")
 
-function updateData1(id){
-    db.run('INSERT INTO tempData(id, stage) VALUES (?, 0)', [id], err => {
+function updateData1(id, date){
+    db.run('INSERT INTO tempData(id, stage, date) VALUES (?, 0, ?)', [id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
         else console.log("Вставил ты ей хорошеично. ")
     })
     }
-function updateData2(id, alco){
-    db.run('UPDATE tempData SET alco = ?, stage = 1 WHERE id = ?', [alco, id], err => {
+function updateData2(id, alco, date){
+    db.run('UPDATE tempData SET alco = ?, stage = 1 WHERE (id = ?) AND (date = ?)', [alco, id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
         else console.log("Вставил ты ей хорошеично. ")
     })  
 }
-function updateData3(id, gradus){
-    db.run('UPDATE tempData SET gradus = ?, stage = 2 WHERE id = ?', [gradus, id], err => {
+function updateData3(id, gradus, date){
+    db.run('UPDATE tempData SET gradus = ?, stage = 2 WHERE (id = ?) AND (date = ?)', [gradus, id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
         else console.log("Вставил ты ей хорошеично. ")
     })
 }
-function updateData4(id, count){
-    db.run('UPDATE tempData SET count = ?, stage = 2 WHERE id = ?', [count, id], err => {
+function updateData4(id, count, date){
+    db.run('UPDATE tempData SET count = ?, stage = 2 WHERE (id = ?) AND (date = ?)', [count, id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
         else console.log("Вставил ты ей хорошеично. ")
     })

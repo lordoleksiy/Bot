@@ -45,7 +45,7 @@ bot.command('alco', ctx=>{  // команда, чтоб записать кол�
 6. вино,
 7. портвейн,
 8. ликеры`)
-  updateData1(ctx.message.from.id)
+  updateData1(ctx.message.from.id, new Date())
 })
 
 
@@ -55,27 +55,28 @@ bot.command('delete', (ctx)=>{
 
 
 bot.on('message', ctx=>{
-  let data = getById(ctx.message.from.id)
-  let value = getById(ctx.message.from.id, "tempData")
+  let data = getById(ctx.message.from.id)  // данные с таблицы alcoData
+  let value = getById(ctx.message.from.id, "tempData", "date")  // данные с таблицы tempData
   value.then(()=> {
     value = value._rejectionHandler0
-    let stage = value.stage
-    switch (stage){
+    console.log(value)
+    switch (value.stage){  // этап
       case 0:
-        updateData2(ctx.message.from.id, alcoObj[ctx.message.text])
+        updateData2(ctx.message.from.id, alcoObj[ctx.message.text], value.date)
         ctx.reply("Ок, какой выдержки было твое пойло? (в градусах)")
         break
+
       case 1:
-        updateData3(ctx.message.from.id, ctx.message.text)
+        updateData3(ctx.message.from.id, ctx.message.text, value.date)
         ctx.reply("Скок выпил?")
         break
+
       case 2:
-        updateData4(ctx.message.from.id, ctx.message.text)
+        updateData4(ctx.message.from.id, ctx.message.text, value.date)
         data = data._rejectionHandler0
         let alco = JSON.parse(data.alco)
         alco[value.alco] += parseInt(ctx.message.text)
         setData(ctx.message.from.id, data.count+parseInt(ctx.message.text)*value.gradus/100, JSON.stringify(alco), null, 0, null)
-        delData(ctx.message.from.id, "tempData")   
     }
   })
 })
