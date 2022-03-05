@@ -74,7 +74,8 @@ bot.on('message', ctx=>{
         data = data._rejectionHandler0
         let alco = JSON.parse(data.alco)
         alco[value.alco] += parseInt(ctx.message.text)
-        setData(ctx.message.from.id, parseInt(ctx.message.text)*value.gradus/100, JSON.stringify(alco), null, 0, null)    
+        setData(ctx.message.from.id, data.count+parseInt(ctx.message.text)*value.gradus/100, JSON.stringify(alco), null, 0, null)
+        delData(ctx.message.from.id, "tempData")   
     }
   })
 })
