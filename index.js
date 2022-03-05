@@ -49,8 +49,10 @@ bot.command('myalco', ctx=>{  // команда, чтоб
       if (alco[k] != 0)
         text += `${k} : ${alco[k]} л; \n`
     }
-    if (text)
+    if (text) {
+      text += `\nТы выпил ${data.count} мл. этанола`
       ctx.reply(text)
+    }
     else
       ctx.reply("Дитя мое, тебе еще только предстоит познать этот мир...")
   })
