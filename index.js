@@ -1,7 +1,18 @@
-const { delData, setData, getById, insertData, updateData } = require('./database')
+const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4 } = require('./database')
 const { Database } = require('sqlite3')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
+
+let alcoObj = {
+  1: 'пиво/сидр',
+  2: 'шейк/ром-кола/рево/подобное', 
+  3: 'водка',
+  4: 'ром',
+  5: 'егерь/крепкий ликер/джин/аристократическая хуйня', 
+  6: 'вино',
+  7: 'портвейн',
+  8: 'ликеры'
+}
 
 const bot = new Telegraf("5290656003:AAHs-MnL_wUOwDh18i-xgfxUx-JdPxSZ30c")
 bot.start( async ctx=>{
@@ -34,7 +45,7 @@ bot.command('alco', ctx=>{  // команда, чтоб записать кол�
 6. вино,
 7. портвейн,
 8. ликеры`)
-  stage = 1
+  updateData1(ctx.message.from.id)
 })
 
 
@@ -44,16 +55,28 @@ bot.command('delete', (ctx)=>{
 
 
 bot.on('message', ctx=>{
-  let stage = 0
-  switch (stage){
-    case 1:
-      updateData(ctx.message.from.id, ctx.message.text)
-      ctx.reply("Ок, какой выдержки было твое пойло? (в градусах)")
-      stage++
-      break
-    case 2:
-      
-  }
+  let data = getById(ctx.message.from.id)
+  let value = getById(ctx.message.from.id, "tempData")
+  value.then(()=> {
+    value = value._rejectionHandler0
+    let stage = value.stage
+    switch (stage){
+      case 0:
+        updateData2(ctx.message.from.id, alcoObj[ctx.message.text])
+        ctx.reply("Ок, какой выдержки было твое пойло? (в градусах)")
+        break
+      case 1:
+        updateData3(ctx.message.from.id, ctx.message.text)
+        ctx.reply("Скок выпил?")
+        break
+      case 2:
+        updateData4(ctx.message.from.id, ctx.message.text)
+        data = data._rejectionHandler0
+        let alco = JSON.parse(data.alco)
+        alco[value.alco] += parseInt(ctx.message.text)
+        setData(ctx.message.from.id, parseInt(ctx.message.text)*value.gradus/100, JSON.stringify(alco), null, 0, null)    
+    }
+  })
 })
 
 bot.launch()

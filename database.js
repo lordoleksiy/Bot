@@ -10,7 +10,7 @@ let alcoObj = {
     'вино': 0,
     'портвейн': 0,
     'ликеры': 0
-  }
+}
 
 const db = new sqlite3.Database("./data.db", err=>{
     if (err) console.log("Ебать, ложись! Ошибка вылетела, щас бомбить начнут. " + err.message)
@@ -29,8 +29,8 @@ function insertData(id, username=null, count=0, alco=JSON.stringify(alcoObj), da
     })
 }
 
-function delData(id){
-    db.run("DELETE FROM alcodata where id == (?)", [id], err=>{
+function delData(id, base='alcodata'){
+    db.run(`DELETE FROM ${base} where id == (?)`, [id], err=>{
         if (err) console.log("Шеф, вы проебались конкретно " + err.message)
         else console.log("Эта хуйня улетела от сюда")
     })
@@ -43,9 +43,9 @@ function setData(id, count, alco, date, score, task=undefined){  // если у 
         db.run("UPDATE alcodata SET count = ?, alco = ?, date = ?, score = ? WHERE id = ?", [count, alco, date, score, id])
 }
 
-function getById(id) {
+function getById(id, base="alcodata") {
     return new Promise((resolve, reject) => {
-    db.get("SELECT * FROM alcodata where id == (?)", [id], (err, result) => {
+    db.get(`SELECT * FROM ${base} where id == (?)`, [id], (err, result) => {
         if (err) {
         console.log('Error running sql: ' + err.message)
         reject(err)
@@ -59,26 +59,38 @@ function getById(id) {
 // db.run("DELETE TABLE alcodata")
 
 //                                  Вторая база данных:
-db.run("CREATE TABLE tempData(id integer not null, alco text not null, gradus integer, count integer, stage integer)")
+// db.run("CREATE TABLE tempData(id integer not null, alco text, gradus integer, count integer, stage integer)")
 
-function updateData(id, alco=null, gradus=null, count=null){
-    if (!gradus && !count){
-        db.run('INSERT INTO tempData(id, alco, stage) VALUES (?, ?, 1)', [id, alco], err => {
-            if (err) console.log("У тебя член маленький. " + err.message)
-            else console.log("Вставил ты ей хорошеично. ")
-        })  
+function updateData1(id){
+    db.run('INSERT INTO tempData(id, stage) VALUES (?, 0)', [id], err => {
+        if (err) console.log("У тебя член маленький. " + err.message)
+        else console.log("Вставил ты ей хорошеично. ")
+    })
     }
-    else if (!count){
-        db.run('INSERT INTO tempData(id, gradus, stage) VALUES (?, ?, 2)', [id, gradus], err => {
-            if (err) console.log("У тебя член маленький. " + err.message)
-            else console.log("Вставил ты ей хорошеично. ")
-        })
-    }
+function updateData2(id, alco){
+    db.run('UPDATE tempData SET alco = ?, stage = 1 WHERE id = ?', [alco, id], err => {
+        if (err) console.log("У тебя член маленький. " + err.message)
+        else console.log("Вставил ты ей хорошеично. ")
+    })  
 }
-
+function updateData3(id, gradus){
+    db.run('UPDATE tempData SET gradus = ?, stage = 2 WHERE id = ?', [gradus, id], err => {
+        if (err) console.log("У тебя член маленький. " + err.message)
+        else console.log("Вставил ты ей хорошеично. ")
+    })
+}
+function updateData4(id, count){
+    db.run('UPDATE tempData SET count = ?, stage = 2 WHERE id = ?', [count, id], err => {
+        if (err) console.log("У тебя член маленький. " + err.message)
+        else console.log("Вставил ты ей хорошеично. ")
+    })
+}
 
 module.exports.insertData = insertData
 module.exports.delData = delData
 module.exports.setData = setData
 module.exports.getById = getById
-module.exports.updateData = Data
+module.exports.updateData1 = updateData1
+module.exports.updateData2 = updateData2
+module.exports.updateData3 = updateData3
+module.exports.updateData4 = updateData4
