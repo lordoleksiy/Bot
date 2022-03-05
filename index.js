@@ -86,32 +86,46 @@ bot.on('message', ctx=>{
           ctx.telegram.sendMessage(ctx.chat.id, 'Какой выдержки было твое пойло? Напиши значение в градусах.', {
               reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
           })
-          ctx.deleteMessage(ctx.message.message_id-1)
-          ctx.deleteMessage()
         }
         else
           delById(ctx.message.from.id, value.date)
+        ctx.deleteMessage(ctx.message.message_id-1)
+        ctx.deleteMessage()
         break
       case 1:
-        updateData3(ctx.message.from.id, ctx.message.text, value.date)
-        ctx.telegram.sendMessage(ctx.chat.id, 'Каким объемом выпитого ты нас порадуешь? Укажи значение в милилитрах.', {
-          reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
-        })
+        if (parseInt(ctx.message.text) <= 100 && parseInt(ctx.message.text) > 0) {
+          updateData3(ctx.message.from.id, ctx.message.text, value.date)
+          ctx.telegram.sendMessage(ctx.chat.id, 'Каким объемом выпитого ты нас порадуешь? Укажи значение в милилитрах.', {
+            reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
+        else {
+          ctx.telegram.sendMessage(ctx.chat.id, 'Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся. И все же, сколько градусов?', {
+            reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
         ctx.deleteMessage(ctx.message.message_id-1)
         ctx.deleteMessage()
         break
 
       case 2:
-        updateData4(ctx.message.from.id, ctx.message.text, value.date)
-        data = data._rejectionHandler0
-        let alco = JSON.parse(data.alco)
+        if (parseInt(ctx.message.text) <= 10000 && parseInt(ctx.message.text) > 0) {
+          updateData4(ctx.message.from.id, ctx.message.text, value.date)
+          data = data._rejectionHandler0
+          let alco = JSON.parse(data.alco)
 
-        alco[value.alco] += parseInt(ctx.message.text)/1000
-        let etanol = parseInt(ctx.message.text)*value.gradus/100
+          alco[value.alco] += parseInt(ctx.message.text)/1000
+          let etanol = parseInt(ctx.message.text)*value.gradus/100
 
-        setData(ctx.message.from.id, data.count + etanol, JSON.stringify(alco), value.date, 0, null)
-        ctx.reply('Дитя мое, ты не перестаешь меня радовать')
-        ctx.reply(`Твой сегодняшний вклад: ${value.alco}: ${parseInt(ctx.message.text)/1000} л. или ${etanol} мл. этанола`)
+          setData(ctx.message.from.id, data.count + etanol, JSON.stringify(alco), value.date, 0, null)
+          ctx.reply('Дитя мое, ты не перестаешь меня радовать')
+          ctx.reply(`Твой сегодняшний вклад: ${value.alco}: ${parseInt(ctx.message.text)/1000} л. или ${etanol} мл. этанола`)
+        }
+        else {
+          ctx.telegram.sendMessage(ctx.chat.id, 'Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся. И все же, сколько милилитров?', {
+            reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
         ctx.deleteMessage(ctx.message.message_id-1)
         ctx.deleteMessage(ctx.message.message_id)
     }
