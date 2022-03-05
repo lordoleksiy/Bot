@@ -98,7 +98,7 @@ function updateData3(id, gradus, date){
     })
 }
 function updateData4(id, count, date){
-    db.run('UPDATE tempData SET count = ?, stage = 2 WHERE (id = ?) AND (date = ?)', [count, id, date], err => {
+    db.run('UPDATE tempData SET count = ?, stage = 3 WHERE (id = ?) AND (date = ?)', [count, id, date], err => {
         if (err) console.log("У тебя член маленький. " + err.message)
         else console.log("Вставил ты ей хорошеично. ")
     })

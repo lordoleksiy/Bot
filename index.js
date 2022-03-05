@@ -1,5 +1,17 @@
-let isWaiting1 = false
-let isWaiting2 = false
+const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4 } = require('./database')
+const { Telegraf, Context } = require('telegraf')
+const { delay } = require('bluebird')
+
+let alcoObj = {
+  1: 'пиво/сидр',
+  2: 'шейк/ром-кола/рево/подобное', 
+  3: 'водка',
+  4: 'ром',
+  5: 'егерь/крепкий ликер/джин/аристократическая хуйня', 
+  6: 'вино',
+  7: 'портвейн',
+  8: 'ликеры'
+}
 
 let testObj = {
   type: 'test',
@@ -8,9 +20,8 @@ let testObj = {
 }
 let testDate
 
-const { Telegraf } = require('telegraf')
-
 const bot = new Telegraf("5245083579:AAE1zVoOVn3g16LNczlx4SE7Nv1KBMWQqiQ")
+
 bot.start( async ctx=>{
   if (await ctx.getChatMembersCount(ctx.chat.id) > 2) {
     ctx.reply(`Здравствуйте, мои дети! Мы приветствуем вас в секте "Свидетели Разлива Пива"`)
@@ -119,99 +130,32 @@ bot.action('writeAlcoStep1', ctx=>{
       ]
     }
   })
+  updateData1(ctx.from.id, new Date())
 })
 
 // Запись выпивки. Запись типа алко. Запрос на количество, который обрабатывается в bot.on(message)
 bot.action(/writeAlcoStep2./, ctx=>{
   ctx.deleteMessage()
-  console.log()
-  switch (ctx.update.callback_query.data) {
-    case "writeAlcoStep21":
-      testObj.type = "пиво/сидр"
-      break
-    case "writeAlcoStep22":
-      testObj.type = "шейк/ром-кола/рево/подобное"
-      break
-    case "writeAlcoStep23":
-      testObj.type = "водка"
-      break
-    case "writeAlcoStep24":
-      testObj.type = "ром"
-      break
-    case "writeAlcoStep25":
-      testObj.type = "егерь/крепкий ликер/джин/аристократическая хуйня"
-      break
-    case "writeAlcoStep26":
-      testObj.type = "вино"
-      break
-    case "writeAlcoStep27":
-      testObj.type = "портвейн"
-      break
-    case "writeAlcoStep28":
-      testObj.type = "ликеры"
-      break
-  }
-  ctx.telegram.sendMessage(ctx.chat.id, 'Напиши, сколько же градусов было в твоем пойле', 
-  {
-    reply_markup: {
-      inline_keyboard: [
-        [{text: "Вернуться назад", callback_data: "writeAlcoStep1"}]
-      ]
-    }
+  let data = getById(ctx.from.id)
+  let value = getById(ctx.from.id, "tempData", "date")
+  value.then(() => {
+    value = value._rejectionHandler0
+    updateData2(ctx.from.id, alcoObj[parseInt(ctx.update.callback_query.data.slice(-1))], value.date)
+    ctx.telegram.sendMessage(ctx.chat.id, 'Напиши, сколько же градусов было в твоем пойле', 
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{text: "Вернуться назад", callback_data: "writeAlcoStep1"}]
+          ]
+        }
+      })
   })
-  isWaiting1 = true;
 })
 
 // Вернуться на главное меню
 bot.action('goBack', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', mainObj)
-})
-
-// Считывание количества и градуса алко
-bot.on('message', ctx=>{
-  if (isWaiting1) {
-    if (parseInt(ctx.message.text) <= 100 && parseInt(ctx.message.text) > 0) {
-      testObj.gradus = ctx.message.text // Сюды запись в базу
-      ctx.deleteMessage(ctx.message.message_id)
-    } else {
-      ctx.deleteMessage(ctx.message.message_id - 1)   
-      ctx.deleteMessage(ctx.message.message_id)
-      ctx.reply('Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся')
-      return
-    }
-    ctx.deleteMessage(ctx.message.message_id - 1)    
-
-    ctx.telegram.sendMessage(ctx.chat.id, 'А сколько выпил то, если честно? В миллилитрах только укажи для справки', 
-    { reply_markup: { inline_keyboard: [[{text: "Вернуться назад", callback_data: "writeAlcoStep1"}]] } })
-
-    isWaiting1 = false
-    isWaiting2 = true
-  } else if (isWaiting2) {
-    if (parseInt(ctx.message.text) > 0 && parseInt(ctx.message.text) < 10000) {
-      testObj.number = ctx.message.text // Сюды запись в базу
-      ctx.deleteMessage(ctx.message.message_id)
-    } else {
-      ctx.deleteMessage(ctx.message.message_id - 1)   
-      ctx.deleteMessage(ctx.message.message_id)
-      ctx.reply('Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся')
-      return
-    }
-    ctx.deleteMessage(ctx.message.message_id - 1)
-    
-    // А сюды чтение из базы
-    ctx.telegram.sendMessage(ctx.chat.id, 
-      `Окей, подитожим. Ты выпил ${testObj.number} миллилитров ${testObj.gradus}-градусного ${testObj.type}`,
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{text: "Да", callback_data: "writeAlcoStep3"}],
-            [{text: "Вернуться назад", callback_data: "writeAlcoStep2"}]
-          ]
-        }
-      })
-    isWaiting2 = false
-  }
 })
 
 // Запись даты последнего раза
@@ -292,5 +236,89 @@ bot.action('close', ctx=>ctx.deleteMessage())
 //   console.log(ctx.message)
 //   bot.telegram.sendMessage(ctx.message.chat.id, "It's so inetersing...")
 // });
+
+// bot.command('delete', ctx=>{
+//   delData(ctx.message.from.id)
+//   ctx.reply("Жаль, что ты оказался слишком слабым...")
+// })
+
+// bot.command('myalco', ctx=>{  // команда, чтоб 
+//   let data = getById(ctx.message.from.chat.id)
+//   data.then(()=>{
+//     data = data._rejectionHandler0
+
+//   })
+// })
+
+// bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко
+//   ctx.reply('Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они: ')
+//   ctx.reply(`1. пиво/сидр,
+// 2. шейк/ром-кола/рево/подобное, 
+// 3. водка,
+// 4. ром,
+// 5. егерь/крепкий ликер/джин/аристократическая хуйня, 
+// 6. вино,
+// 7. портвейн,
+// 8. ликеры`)
+//   updateData1(ctx.message.from.id, new Date())
+// })
+
+bot.on('message', ctx=>{
+  let data = getById(ctx.message.from.id)  // данные с таблицы alcoData
+  let value = getById(ctx.message.from.id, "tempData", "date")  // данные с таблицы tempData
+  value.then(()=> {
+    value = value._rejectionHandler0
+    switch (value.stage){  // этап
+      case 0:
+        if (ctx.message.text in alcoObj){
+          updateData2(ctx.message.from.id, alcoObj[ctx.message.text], value.date)
+          ctx.telegram.sendMessage(ctx.chat.id, 'Какой выдержки было твое пойло? Напиши значение в градусах.', {
+              reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
+        else
+          delById(ctx.message.from.id, value.date)
+        ctx.deleteMessage(ctx.message.message_id-1)
+        ctx.deleteMessage()
+        break
+      case 1:
+        if (parseInt(ctx.message.text) <= 100 && parseInt(ctx.message.text) > 0) {
+          updateData3(ctx.message.from.id, ctx.message.text, value.date)
+          ctx.telegram.sendMessage(ctx.chat.id, 'Каким объемом выпитого ты нас порадуешь? Укажи значение в милилитрах.', {
+            reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
+        else {
+          ctx.telegram.sendMessage(ctx.chat.id, 'Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся. И все же, сколько градусов?', {
+            reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
+        ctx.deleteMessage(ctx.message.message_id-1)
+        ctx.deleteMessage()
+        break
+
+      case 2:
+        if (parseInt(ctx.message.text) <= 10000 && parseInt(ctx.message.text) > 0) {
+          updateData4(ctx.message.from.id, ctx.message.text, value.date)
+          data = data._rejectionHandler0
+          let alco = JSON.parse(data.alco)
+
+          alco[value.alco] += parseInt(ctx.message.text)/1000
+          let etanol = parseInt(ctx.message.text)*value.gradus/100
+
+          setData(ctx.message.from.id, data.count + etanol, JSON.stringify(alco), value.date, 0, null)
+          ctx.reply('Дитя мое, ты не перестаешь меня радовать')
+          ctx.reply(`Твой сегодняшний вклад: ${value.alco}: ${parseInt(ctx.message.text)/1000} л. или ${etanol} мл. этанола`)
+        }
+        else {
+          ctx.telegram.sendMessage(ctx.chat.id, 'Введи нормально, пожалуйста. Глупые в нашей секте долго не держатся. И все же, сколько милилитров?', {
+            reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+          })
+        }
+        ctx.deleteMessage(ctx.message.message_id-1)
+        ctx.deleteMessage(ctx.message.message_id)
+    }
+  })
+})
 
 bot.launch()
