@@ -252,8 +252,30 @@ bot.action('help', ctx=>{
 // Вывод "сколько дней не пил"
 bot.action('date', ctx=>{
   ctx.deleteMessage()
-  // Надо продумать, не гребу, как эту херню представить адекватно в днях
-  ctx.telegram.sendMessage(ctx.chat.id, `Ты не пил ${Math.floor((new Date() - testDate)/1000)} секунд`,
+  let days = Math.floor((new Date() - testDate)/1000/3600/24)
+  let hours = Math.floor((new Date() - testDate)/1000)
+  let daysText = () => {
+    if (Math.floor((new Date() - testDate)/1000/3600/24)%10 == 0 ||
+     (Math.floor((new Date() - testDate)/1000/3600/24)%10 >= 5 && Math.floor((new Date() - testDate)/1000/3600/24)%10 < 10)) {
+      return 'дней'
+    } else if (Math.floor((new Date() - testDate)/1000/3600/24)%10 == 1) {
+      return 'день'
+    } else if (Math.floor((new Date() - testDate)/1000/3600/24)%10 > 1 &&
+     Math.floor((new Date() - testDate)/1000/3600/24)%10 < 5) {
+      return 'дня'
+    }
+  }
+  let hoursText = () => {
+    if (Math.floor((new Date() - testDate)/1000/3600)%10 == 0 ||
+     (Math.floor((new Date() - testDate)/1000/3600)%10 >= 5 && Math.floor((new Date() - testDate)/1000/3600)%10 < 10)) {
+      return 'часов'
+    } else if (Math.floor((new Date() - testDate)/1000/3600)%10 == 1) {
+      return 'час'
+    } else if (Math.floor((new Date() - testDate)/1000/3600)%10 > 1 && Math.floor((new Date() - testDate)/1000/3600)%10 < 5) {
+      return 'часа'
+    }
+  }
+  ctx.telegram.sendMessage(ctx.chat.id, `Ты не пил ${days} ${daysText()}, ${hours} ${hoursText()}. Надо исправлять`,
   {
     reply_markup: {
       inline_keyboard: [
