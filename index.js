@@ -211,37 +211,42 @@ bot.action('help', ctx=>{
 
 // Вывод "сколько дней не пил"
 bot.action('date', ctx=>{
+  let data = getById(ctx.from.id)
+  let value = getById(ctx.from.id, "tempData", "date")
   ctx.deleteMessage()
-  let days = Math.floor((new Date() - testDate)/1000/3600/24)
-  let hours = Math.floor((new Date() - testDate)/1000)
-  let daysText = () => {
-    if (Math.floor((new Date() - testDate)/1000/3600/24)%10 == 0 ||
-     (Math.floor((new Date() - testDate)/1000/3600/24)%10 >= 5 && Math.floor((new Date() - testDate)/1000/3600/24)%10 < 10)) {
-      return 'дней'
-    } else if (Math.floor((new Date() - testDate)/1000/3600/24)%10 == 1) {
-      return 'день'
-    } else if (Math.floor((new Date() - testDate)/1000/3600/24)%10 > 1 &&
-     Math.floor((new Date() - testDate)/1000/3600/24)%10 < 5) {
-      return 'дня'
+  data.then(() => {
+    data = data._rejectionHandler0
+    let days = Math.floor((new Date() - data.date)/1000/3600/24)
+    let hours = Math.floor((new Date() - data.date)/1000/3600)
+    let daysText = () => {
+      if (Math.floor((new Date() - data.date)/1000/3600/24)%10 == 0 ||
+      (Math.floor((new Date() - data.date)/1000/3600/24)%10 >= 5 && Math.floor((new Date() - testDate)/1000/3600/24)%10 < 10)) {
+        return 'дней'
+      } else if (Math.floor((new Date() - data.date)/1000/3600/24)%10 == 1) {
+        return 'день'
+      } else if (Math.floor((new Date() - data.date)/1000/3600/24)%10 > 1 &&
+      Math.floor((new Date() - data.date)/1000/3600/24)%10 < 5) {
+        return 'дня'
+      }
     }
-  }
-  let hoursText = () => {
-    if (Math.floor((new Date() - testDate)/1000/3600)%10 == 0 ||
-     (Math.floor((new Date() - testDate)/1000/3600)%10 >= 5 && Math.floor((new Date() - testDate)/1000/3600)%10 < 10)) {
-      return 'часов'
-    } else if (Math.floor((new Date() - testDate)/1000/3600)%10 == 1) {
-      return 'час'
-    } else if (Math.floor((new Date() - testDate)/1000/3600)%10 > 1 && Math.floor((new Date() - testDate)/1000/3600)%10 < 5) {
-      return 'часа'
+    let hoursText = () => {
+      if (Math.floor((new Date() - data.date)/1000/3600)%10 == 0 ||
+      (Math.floor((new Date() - data.date)/1000/3600)%10 >= 5 && Math.floor((new Date() - testDate)/1000/3600)%10 < 10)) {
+        return 'часов'
+      } else if (Math.floor((new Date() - data.date)/1000/3600)%10 == 1) {
+        return 'час'
+      } else if (Math.floor((new Date() - data.date)/1000/3600)%10 > 1 && Math.floor((new Date() - testDate)/1000/3600)%10 < 5) {
+        return 'часа'
+      }
     }
-  }
-  ctx.telegram.sendMessage(ctx.chat.id, `Ты не пил ${days} ${daysText()}, ${hours} ${hoursText()}. Надо исправлять`,
-  {
-    reply_markup: {
-      inline_keyboard: [
-        [{text: "Вернуться назад", callback_data: "alco"}]
-      ]
-    }
+    ctx.telegram.sendMessage(ctx.chat.id, `Ты не пил ${days} ${daysText()}, ${hours} ${hoursText()}. Надо исправлять`,
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [{text: "Вернуться назад", callback_data: "alco"}]
+        ]
+      }
+    })
   })
 })
 
