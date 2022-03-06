@@ -88,6 +88,14 @@ bot.command('alcof', ctx=>{
   ctx.reply('Из-за таких, как ты, нашу веру ущемляют')
 })
 
+bot.command('time', ctx=>{
+  let value = getById(ctx.message.from.id)
+  value.then(()=>{
+    value = value._rejectionHandler0
+    const date = new Date(parseInt(value.date))
+  })
+})
+
 bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко
   updateData1(ctx.message.from.id, new Date())
   ctx.telegram.sendMessage(ctx.chat.id, 
