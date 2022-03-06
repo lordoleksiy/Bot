@@ -1,4 +1,4 @@
-const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4, delById } = require('./database')
+const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4, delById, getByUser } = require('./database')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
 
@@ -50,12 +50,42 @@ bot.command('myalco', ctx=>{  // команда, чтоб
         text += `${k} : ${alco[k]} л; \n`
     }
     if (text) {
-      text += `\nТы выпил ${data.count} мл. этанола`
+      text += `\nТы выпил ${parseFloat(data.count.toFixed(2))} мл. этанола`
       ctx.reply(text)
     }
     else
       ctx.reply("Дитя мое, тебе еще только предстоит познать этот мир...")
   })
+})
+
+bot.command('alcof', ctx=>{
+  let text = ctx.message.text.split(' ')[1]
+  if (text){
+    if (text[0] == '@')
+      text = text.slice(1)
+    let value = getByUser(text)
+    value.then(()=>{
+      value = value._rejectionHandler0
+      if (value){
+        let alco = JSON.parse(value.alco)
+        text = 'Почетный список твоего собрата:\n'
+        for (k in alco){
+          if (alco[k] != 0)
+            text += `${k} : ${alco[k]} л; \n`
+        }
+        if (text) {
+          text += `\nТвой собрат выпил ${parseFloat(value.count.toFixed(2))} мл. этанола`
+          ctx.reply(text)
+        }
+        else
+          ctx.reply('Твоему собрату еще только предстоит познать этот мир. Помоги сделать ему этот нелегкий шаг. Обсуди с ним, насколько вы сильно любите нашу секту за чашечкой водки')
+      }
+      else
+      ctx.reply('Твоему собрату еще только предстоит познать этот мир. Помоги сделать ему этот нелегкий шаг. Пригласи его в нашу секту и помоги ему тут обосновоться')
+    })
+  }
+  else
+  ctx.reply('Из-за таких, как ты, нашу веру ущемляют')
 })
 
 bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко

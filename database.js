@@ -71,6 +71,17 @@ function getById(id, base="alcodata", order=null) {
     }
 }
 
+function getByUser(username){
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT * FROM alcodata where username == (?)`, [username], (err, result) => {
+            if (err) {
+            console.log('Error running sql: ' + err.message)
+            reject(err)
+            } else resolve(result)
+        })
+        })
+}
+
 
 // db.run("CREATE TABLE alcodata(id integer not null, count integer not null, alco text not null, date text, score integer, task text, username text)")
 // db.run("DELETE TABLE alcodata")
@@ -120,3 +131,4 @@ module.exports.updateData2 = updateData2
 module.exports.updateData3 = updateData3
 module.exports.updateData4 = updateData4
 module.exports.delById = delById
+module.exports.getByUser = getByUser
