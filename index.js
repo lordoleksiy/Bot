@@ -13,11 +13,6 @@ let alcoObj = {
   8: 'ликеры'
 }
 
-let testObj = {
-  type: 'test',
-  gradus: 0,
-  number: 0
-}
 let testDate
 
 const bot = new Telegraf("5245083579:AAE1zVoOVn3g16LNczlx4SE7Nv1KBMWQqiQ")
@@ -169,15 +164,36 @@ bot.action('writeAlcoStep3', ctx=>{
 // Вывести список и количество алко в 
 bot.action('readAlco', ctx=>{
   ctx.deleteMessage()
-  // Сюды надо прописать нормальный вывод из бд
-  ctx.telegram.sendMessage(ctx.chat.id, testObj, 
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [{text: "Вернуться назад", callback_data: "alco"}]
-        ]
-      }
-    })
+  let data = getById(ctx.from.id)
+  data.then(()=>{
+    data = data._rejectionHandler0
+    let alco = JSON.parse(data.alco)
+    let text = 'Вот твой почетный список:\n'
+    for (k in alco){
+      if (alco[k] != 0)
+        text += `${k} : ${alco[k]} л; \n`
+    }
+    if (text) {
+      text += `\nТы выпил ${parseFloat(data.count.toFixed(2))} мл. этанола`
+      ctx.telegram.sendMessage(ctx.chat.id, text,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{text: "Вернуться назад", callback_data: "alco"}]
+          ]
+        }
+      })
+    }
+    else
+      ctx.telegram.sendMessage(ctx.chat.id, "Дитя мое, тебе еще только предстоит познать этот мир...",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{text: "Вернуться назад", callback_data: "alco"}]
+          ]
+        }
+      })
+  })
 })
 
 // Помощь.
@@ -232,36 +248,45 @@ bot.action('date', ctx=>{
 // Закрыть менюшку
 bot.action('close', ctx=>ctx.deleteMessage())
 
-// bot.on('message', (ctx)=> {
-//   console.log(ctx.message)
-//   bot.telegram.sendMessage(ctx.message.chat.id, "It's so inetersing...")
-// });
+bot.command('delete', ctx=>{
+  delData(ctx.message.from.id)
+  ctx.reply("Жаль, что ты оказался слишком слабым...")
+})
 
-// bot.command('delete', ctx=>{
-//   delData(ctx.message.from.id)
-//   ctx.reply("Жаль, что ты оказался слишком слабым...")
-// })
+bot.command('myalco', ctx=>{  // команда, чтоб 
+  let data = getById(ctx.message.from.id)
+  data.then(()=>{
+    data = data._rejectionHandler0
+    let alco = JSON.parse(data.alco)
+    let text = 'Вот твой почетный список:\n'
+    for (k in alco){
+      if (alco[k] != 0)
+        text += `${k} : ${alco[k]} л; \n`
+    }
+    if (text) {
+      text += `\nТы выпил ${parseFloat(data.count.toFixed(2))} мл. этанола`
+      ctx.reply(text)
+    }
+    else
+      ctx.reply("Дитя мое, тебе еще только предстоит познать этот мир...")
+  })
+})
 
-// bot.command('myalco', ctx=>{  // команда, чтоб 
-//   let data = getById(ctx.message.from.chat.id)
-//   data.then(()=>{
-//     data = data._rejectionHandler0
-
-//   })
-// })
-
-// bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко
-//   ctx.reply('Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они: ')
-//   ctx.reply(`1. пиво/сидр,
-// 2. шейк/ром-кола/рево/подобное, 
-// 3. водка,
-// 4. ром,
-// 5. егерь/крепкий ликер/джин/аристократическая хуйня, 
-// 6. вино,
-// 7. портвейн,
-// 8. ликеры`)
-//   updateData1(ctx.message.from.id, new Date())
-// })
+bot.command('alco', ctx=>{  // команда, чтоб записать количество выпитого алко
+  updateData1(ctx.message.from.id, new Date())
+  ctx.telegram.sendMessage(ctx.chat.id, 
+  `Вспомни наши 8 заповедей и назови ту, которой сегодня ты следовал, ах да вот же они:\n
+  1. пиво/сидр,
+  2. шейк/ром-кола/рево/подобное, 
+  3. водка,
+  4. ром,
+  5. егерь/крепкий ликер/джин/аристократическая хуйня, 
+  6. вино,
+  7. портвейн,
+  8. ликеры`, {
+    reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+  })
+})
 
 bot.on('message', ctx=>{
   let data = getById(ctx.message.from.id)  // данные с таблицы alcoData
