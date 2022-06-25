@@ -1,6 +1,7 @@
 const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4, delById, getByUser } = require('./database')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
+const { timejs } = require('datejs')
 
 let alcoObj = {
   1: 'пиво/сидр',
@@ -93,6 +94,9 @@ bot.command('time', ctx=>{
   value.then(()=>{
     value = value._rejectionHandler0
     const date = new Date(parseInt(value.date))
+    const date1 = date.toString("dd/MM/y")
+    const date2 = date.toString("HH:mm:ss")
+    ctx.reply(`Время последнего испитого вами бокала: ${date1} в ${date2}`)
   })
 })
 
