@@ -1,6 +1,7 @@
-const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4 } = require('./database')
+const { delData, setData, getById, insertData, updateData1, updateData2, updateData3, updateData4, delById, getByUser } = require('./database')
 const { Telegraf, Context } = require('telegraf')
 const { delay } = require('bluebird')
+const { timejs } = require('datejs')
 
 let alcoObj = {
   1: 'пиво/сидр',
@@ -30,6 +31,12 @@ bot.command('cumin', ctx=>{
     ctx.reply(`${ctx.message.from.first_name}, мы рады видеть тебя в свой секте "Свидетели Разлива Пива"`)
   else
    ctx.reply(`${ctx.message.from.first_name}, мы не рады видеть тебя в свой секте "Свидетели Разлива Пива", но хуй с тобой - присоединяйся`)
+})
+
+bot.command('cumout', ctx=>{
+  delData(ctx.message.from.id)
+  delData(ctx.message.from.id, "tempData")
+  ctx.reply("Жаль, что ты оказался слишком слабым...")
 })
 
 // Основое меню
@@ -99,6 +106,43 @@ bot.action('task', ctx=>{
   })
 })
 
+bot.action('system', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Test',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Вернуться назад", callback_data: "tree"}]
+      ]
+    }
+  })
+})
+
+bot.action('best', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Test',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Вернуться назад", callback_data: "tree"}]
+      ]
+    }
+  })
+})
+
+bot.action('rank', ctx=>{
+  ctx.deleteMessage()
+  ctx.telegram.sendMessage(ctx.chat.id, 'Test',
+  {
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "Вернуться назад", callback_data: "tree"}]
+      ]
+    }
+  })
+})
+
+
 // Запись выпивки. Выбор типа алко по кнопкам
 bot.action('writeAlcoStep1', ctx=>{
   ctx.deleteMessage()
@@ -151,14 +195,6 @@ bot.action(/writeAlcoStep2./, ctx=>{
 bot.action('goBack', ctx=>{
   ctx.deleteMessage()
   ctx.telegram.sendMessage(ctx.chat.id, 'Текст, который я потом продумаю', mainObj)
-})
-
-// Запись даты последнего раза
-bot.action('writeAlcoStep3', ctx=>{
-  ctx.deleteMessage()
-  testDate = new Date()
-  console.log(testDate)
-  // Тут будет прописана логика записи объекта в базу данных
 })
 
 // Вывести список и количество алко в 
@@ -290,6 +326,74 @@ bot.command('alco', ctx=>{  // команда, чтоб записать кол�
   7. портвейн,
   8. ликеры`, {
     reply_markup: { inline_keyboard: [[{text: "Отмена", callback_data: "cancel"}]]}
+  })
+})
+
+bot.command('myalco', ctx=>{  // команда, чтоб 
+  let data = getById(ctx.message.from.id)
+  data.then(()=>{
+    data = data._rejectionHandler0
+    let alco = JSON.parse(data.alco)
+    let text = 'Вот твой почетный список:\n'
+    for (k in alco){
+      if (alco[k] != 0)
+        text += `${k} : ${alco[k]} л; \n`
+    }
+    if (text) {
+      text += `\nТы выпил ${parseFloat(data.count.toFixed(2))} мл. этанола`
+      ctx.reply(text)
+    }
+    else
+      ctx.reply("Дитя мое, тебе еще только предстоит познать этот мир...")
+  })
+})
+
+bot.command('alcof', ctx=>{
+  let text = ctx.message.text.split(' ')[1]
+  if (text){
+    if (text[0] == '@')
+      text = text.slice(1)
+    let value = getByUser(text)
+    value.then(()=>{
+      value = value._rejectionHandler0
+      if (value){
+        let alco = JSON.parse(value.alco)
+        text = 'Почетный список твоего собрата:\n'
+        for (k in alco){
+          if (alco[k] != 0)
+            text += `${k} : ${alco[k]} л; \n`
+        }
+        if (text) {
+          text += `\nТвой собрат выпил ${parseFloat(value.count.toFixed(2))} мл. этанола`
+          ctx.reply(text)
+        }
+        else
+          ctx.reply('Твоему собрату еще только предстоит познать этот мир. Помоги сделать ему этот нелегкий шаг. Обсуди с ним, насколько вы сильно любите нашу секту за чашечкой водки')
+      }
+      else
+      ctx.reply('Твоему собрату еще только предстоит познать этот мир. Помоги сделать ему этот нелегкий шаг. Пригласи его в нашу секту и помоги ему тут обосновоться')
+    })
+  }
+  else
+  ctx.reply('Из-за таких, как ты, нашу веру ущемляют')
+})
+
+bot.command('time', ctx=>{
+  let value = getById(ctx.message.from.id)
+  value.then(()=>{
+    value = value._rejectionHandler0
+    const date = new Date(parseInt(value.date))
+    const date1 = date.toString("dd/MM/y")
+    const date2 = date.toString("HH:mm:ss")
+    ctx.reply(`Время последнего испитого вами бокала: ${date1} в ${date2}`)
+  })
+})
+
+bot.action('cancel', ctx=>{
+  let value = getById(ctx.from.id, "tempData", "date")
+  value.then(()=>{
+    delById(ctx.from.id, value._rejectionHandler0.date)
+    ctx.deleteMessage()
   })
 })
 
